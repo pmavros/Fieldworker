@@ -1,20 +1,24 @@
-package org.urbancortex.fieldworker_3;
+package org.urbancortex.fieldworker;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+
 
 public class MainActivity extends Activity {
 
     public final static String EXTRA_MESSAGE = "org.urbancortex.fieldworker.MESSAGE";
-
+    private File fileWriteDirectory;
+    protected static boolean exit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +27,18 @@ public class MainActivity extends Activity {
 
         new locations(this, locations.ProviderType.GPS).start();
 
+
+
     }
 
+    @Override
+    protected void onStart() {
+        if(exit){
+            finish();
+        }
+
+        super.onStart();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,15 +67,35 @@ public class MainActivity extends Activity {
         // Do something in response to button
         Intent intent = new Intent(this, Buttons.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        System.out.println(message);
-        if(!message.isEmpty()){
-            intent.putExtra(EXTRA_MESSAGE, message);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "You did not enter a participant ID", Toast.LENGTH_LONG).show();
+        String participantID = editText.getText().toString();
 
+
+        if(readWriteSettings.folderSettings()){
+            Intent serviceIntent = new Intent(this,csv_logger.class);
+            serviceIntent.putExtra("fileDir", readWriteSettings.fileWriteDirectory.toString());
+            serviceIntent.putExtra("participantID", participantID);
+
+            if(!participantID.isEmpty()){
+                System.out.println(participantID);
+
+                // start GPS logging
+                startService(serviceIntent);
+
+                intent.putExtra(EXTRA_MESSAGE, participantID);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(this, "Hey, did you forget to enter a participant ID?", Toast.LENGTH_LONG).show();
+
+            }
+        } else {
+            Toast.makeText(this, "I couldn't find a fieldworker folder in the system!", Toast.LENGTH_LONG).show();
         }
+
+
+
+
+
     }
 
 

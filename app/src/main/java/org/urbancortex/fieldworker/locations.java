@@ -1,4 +1,4 @@
-package org.urbancortex.fieldworker_3;
+package org.urbancortex.fieldworker;
 
 import android.content.Context;
 import android.location.Location;

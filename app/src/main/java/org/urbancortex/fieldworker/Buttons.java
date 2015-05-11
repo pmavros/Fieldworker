@@ -1,12 +1,15 @@
-package org.urbancortex.fieldworker_3;
+package org.urbancortex.fieldworker;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.format.Time;
+import android.os.IBinder;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,9 +17,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Vibrator;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,34 +34,64 @@ public class Buttons extends Activity  {
     String [] colours = {"#33B5E5", "#AA66CC", "#99CC00","#FFBB33","#FF4444","#0099CC", "#9933CC","#669900", "#FF8800","#CC0000"};
 
     static long now;
-    static long startTime;
+    static long startTime = elapsedRealtime();
 
-    static String outputFileName;
+
 
     SimpleDateFormat formatterDate = new SimpleDateFormat("dd/MM/yyyy");
     SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss.SSS");
     private String date;
-    private String currenttime;
+    private String currentTime;
     String eventInfo;
 
     Vibrator v;
 
-    private int mInterval = 5000; // 5 seconds by default, can be changed later
+    private int mInterval = 1000; // 5 seconds by default, can be changed later
     private Handler mHandler;
 
+    csv_logger mService;
+    boolean mBound = false;
+
+    DecimalFormat df = new DecimalFormat("#.#");
+
     public static int counter = 0;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-       setContentView(R.layout.activity_buttons);
+        setContentView(R.layout.activity_buttons);
 
         // Get the message from the intent
         Intent intent = getIntent();
         participantID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+    }
+
+
+    ServiceConnection mConnection = new ServiceConnection() {
+
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            csv_logger.LocalBinder mLocalBinder = (csv_logger.LocalBinder)service;
+            mService = mLocalBinder.getService();
+            mBound = true;
+        }
+    };
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Bind to LocalService
+        Intent intent = new Intent(this, csv_logger.class);
+        bindService(intent, mConnection, 0);
+
+        setContentView(R.layout.activity_buttons);
+        v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
+
 
 
         // Create the text view
@@ -68,31 +100,30 @@ public class Buttons extends Activity  {
         textViewName.setText("Participant:");
 
         // Create the text view
-        //TextView textView = new TextView(this);
         TextView textView = (TextView) findViewById(R.id.textView4);
         textView.setTextSize(20);
         textView.setText(participantID);
 
-        // Set the text view as the activity layout
-        //setContentView(textView);
-
+        // load button names from file
         renameButtons();
+        updateCounter(csv_logger.counter);
+
+        // start timer
         mHandler = new Handler();
 
-        v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
-
-
-//        System.out.println()
-        try {
-            logger.createFile(participantID);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        startTime = elapsedRealtime();
-        startRepeatingTask();
+        startTimer();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -100,6 +131,13 @@ public class Buttons extends Activity  {
         getMenuInflater().inflate(R.menu.menu_buttons, menu);
         return true;
     }
+
+//    @Override
+//    public void onStart(){
+//        super.onStart();
+//        // put your code here...
+//
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -109,40 +147,29 @@ public class Buttons extends Activity  {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_exit) {
             System.out.println("pressed action bar ");
 
-            try {
-                logger.closeFile();
-
-                if (getIntent().getBooleanExtra("EXIT", false)) {
-                    finish();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            stopService(new Intent(Buttons.this, csv_logger.class));
+            MainActivity.exit = true;
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
     public void logEvent(View view) throws IOException, ParseException {
         Button b = (Button) view;
 
-        counter++;
-        updateCounter();
+        csv_logger.counter++;
+        updateCounter(csv_logger.counter);
 
         String buttonPressed = b.getText().toString();
         time = System.currentTimeMillis();
         date = formatterDate.format(new Date(time));
-
-
-        currenttime = formatterTime.format(new Date(time));
-
-
+        currentTime = formatterTime.format(new Date(time));
         v.vibrate(100);
 
         Toast.makeText(this, buttonPressed + " pressed", Toast.LENGTH_SHORT).show();
@@ -150,7 +177,7 @@ public class Buttons extends Activity  {
         eventInfo = buttonPressed.toString() + ", " +
                 time + ", " +
                 date + ", " +
-                currenttime + ", " +
+                currentTime + ", " +
                 locations.lat + ", " +
                 locations.lon + ", " +
                 locations.speed + ", " +
@@ -158,7 +185,8 @@ public class Buttons extends Activity  {
                 locations.elevation + ", " +
                 locations.accuracy;
 
-        logger.writeStringAsFile(eventInfo);
+        System.out.println(eventInfo);
+        mService.writeStringToFile(eventInfo);
 
 
 
@@ -166,13 +194,13 @@ public class Buttons extends Activity  {
 
     private void renameButtons (){
 
-        String [] events = readSettings.getButtonSettings();
+        String [] events = readWriteSettings.getButtonSettings();
 
         for (int i = 0; i < events.length; i++) {
             out.println(events[i]);
 
             String buttonID = "button" + i;
-            int resID = getResources().getIdentifier(buttonID, "id", "org.urbancortex.fieldworker_3");
+            int resID = getResources().getIdentifier(buttonID, "id", "org.urbancortex.fieldworker");
             Button text = (Button)findViewById(resID);
             text.setText(events[i]);
             text.setEnabled(true);
@@ -199,58 +227,30 @@ public class Buttons extends Activity  {
         return eventNames;
     }
 
-    private Runnable mStatusChecker = new Runnable() {
+    private Runnable mTimer = new Runnable() {
         @Override
         public void run() {
 
             now = elapsedRealtime();
 
             updateTime(now);
-            updateLog(); //this function can change value of mInterval.
-            mHandler.postDelayed(mStatusChecker, mInterval);
+            mHandler.postDelayed(mTimer, mInterval);
         }
     };
 
-    void startRepeatingTask() {
-        mStatusChecker.run();
+    void startTimer() {
+        mTimer.run();
     }
 
-    void stopRepeatingTask() {
-        mHandler.removeCallbacks(mStatusChecker);
-
-
-
+    void stopTimer() {
+        mHandler.removeCallbacks(mTimer);
     }
 
-    public void updateLog(){
-
-        time = System.currentTimeMillis();
-        date = formatterDate.format(new Date(time));
-        currenttime = formatterTime.format(new Date(time));
-
-        eventInfo = "NA" + ", " +
-                time + ", " +
-                date + ", " +
-                currenttime + ", " +
-                locations.lat + ", " +
-                locations.lon + ", " +
-                locations.speed + ", " +
-                locations.bearing + ", " +
-                locations.elevation + ", " +
-                locations.accuracy;
-
-        try {
-            logger.writeStringAsFile(eventInfo);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-        private void updateCounter(){
+        private void updateCounter(int count){
 
             TextView textView = (TextView) findViewById(R.id.textView7);
             textView.setTextSize(20);
-            textView.setText(String.valueOf(counter));
+            textView.setText(String.valueOf(count));
         }
 
         void updateTime(long now){
@@ -260,20 +260,21 @@ public class Buttons extends Activity  {
             millisElapsed = now - startTime;
             double timeElapsed = millisElapsed / 1000;
 
+
+
             if (timeElapsed < 60 ){
                 textTimeElasped = String.valueOf(timeElapsed) + " seconds";
             } else if (timeElapsed < 3600){
                 timeElapsed = timeElapsed/60;
-                textTimeElasped = String.valueOf(timeElapsed) + " minutes";
+                textTimeElasped = df.format(timeElapsed) + " minutes";
             } else {
                 timeElapsed = timeElapsed/3600;
-                textTimeElasped = String.valueOf(timeElapsed) + " hours";
+                textTimeElasped = df.format(timeElapsed) + " hours";
             }
 
             TextView textView = (TextView) findViewById(R.id.textView9);
             textView.setTextSize(20);
             textView.setText(textTimeElasped);
         }
-
-    }
+}
 

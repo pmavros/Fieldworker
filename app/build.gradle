@@ -3,9 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
-
     defaultConfig {
-        applicationId "org.urbancortex.fieldworker_3"
+        applicationId 'org.urbancortex.fieldworker'
         minSdkVersion 17
         targetSdkVersion 21
         versionCode 1
@@ -19,6 +18,8 @@ android {
     }
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+    productFlavors {
     }
 }
 

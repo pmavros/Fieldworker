@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.urbancortex.fieldworker_3"
+    package="org.urbancortex.fieldworker"
     android:installLocation="preferExternal"
     >
 
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-
-
 
     <application
         android:screenOrientation="portrait"
@@ -30,6 +27,14 @@
             android:name=".Buttons"
             android:label="@string/title_activity_buttons" >
         </activity>
+
+
+        <service android:name=".csv_logger"
+            android:enabled="true" >
+        </service>
+
     </application>
+
+
 
 </manifest>
