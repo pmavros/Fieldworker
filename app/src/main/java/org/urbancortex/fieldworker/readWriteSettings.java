@@ -24,8 +24,8 @@ public class readWriteSettings {
             out.println("external storage is fine");
 
             // sets the files in the directory
-            fileDirectory = new File(Environment.getExternalStorageDirectory() + "/FieldWorker");
-            fileWriteDirectory = new File(Environment.getExternalStorageDirectory() + "/FieldWorker/data");
+            fileDirectory = new File(Environment.getExternalStorageDirectory() + "/Fieldworker");
+            fileWriteDirectory = new File(Environment.getExternalStorageDirectory() + "/Fieldworker/data");
             // check if directory exists
             if (fileDirectory.exists()) {
                 // do something here

@@ -9,4 +9,5 @@
         android:icon="@mipmap/ic_camera"
         android:title="@string/action_camera"
         android:showAsAction="ifRoom" />
+
 </menu>

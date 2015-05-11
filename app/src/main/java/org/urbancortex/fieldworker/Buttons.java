@@ -1,11 +1,15 @@
 package org.urbancortex.fieldworker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -55,6 +59,7 @@ public class Buttons extends Activity  {
     DecimalFormat df = new DecimalFormat("#.#");
 
     public static int counter = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +144,10 @@ public class Buttons extends Activity  {
 //
 //    }
 
+
+
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -150,10 +159,31 @@ public class Buttons extends Activity  {
         if (id == R.id.action_exit) {
             System.out.println("pressed action bar ");
 
-            stopService(new Intent(Buttons.this, csv_logger.class));
-            MainActivity.exit = true;
-            finish();
-            return true;
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit")
+                    .setMessage("Are you sure you want to stop recording?")
+                    .setIcon(0)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with exit
+
+                            stopService(new Intent(Buttons.this, csv_logger.class));
+                            MainActivity.exit = true;
+                            finish();
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .show();
+
+
+
+
+
         }   else if (id == R.id.action_camera){
             Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
             startActivity(intent);
