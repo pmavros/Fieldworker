@@ -154,7 +154,11 @@ public class Buttons extends Activity  {
             MainActivity.exit = true;
             finish();
             return true;
+        }   else if (id == R.id.action_camera){
+            Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            startActivity(intent);
         }
+
 
         return super.onOptionsItemSelected(item);
     }
