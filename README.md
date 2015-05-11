@@ -1,12 +1,16 @@
-Logger
+*Fielworker
 ======
 
-Android application for urban pedestrian field experiments, recording movement and events.
+Fielworker is an Android application for urban pedestrian field experiments, recording movement and events.
 
-For details and information, please read this blog post: 
+It is used in behavioural and mobile EEG research, using accurate timestamps to associate participant behaviour with other datasources.
 
-http://psybercity.co.uk/2014/07/06/logger-_-an-android-app/
+It records behavioural events through a simple 8-button UI, and collects GPS coordinates.
 
-to download the android package go to this address:
+Importantly, it records time with millisecond precision, both as human readable and as unix epoch format, for flexible post-processing.
 
-https://www.dropbox.com/s/jqw5d4ak8e9u03q/Logger-debug.apk
+***Development History
+
+Fieldworker was first developped in Processing for Android by mandarini (then named 'Logger'; read more here http://psybercity.co.uk/2014/07/06/logger-_-an-android-app/) as part of MSc research.
+
+Panos wrote the app in native Android for greater flexibility and future upgrades.

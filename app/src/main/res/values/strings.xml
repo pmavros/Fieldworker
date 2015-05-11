@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">FieldWorker</string>
+
+    <string name="hello_world">Welcome Fieldorker</string>
+    <string name="action_settings">Stop recording</string>
+
+
+    <string name="edit_message">Enter participant ID</string>
+    <string name="button_send">Start recording</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_buttons">Experiment</string>
+
+    <string name="participantId">Participant:</string>
+    <string name="Timestamp">Time Elapsed:</string>
+    <string name="events">Events Logged:</string>
+
+</resources>
+
+

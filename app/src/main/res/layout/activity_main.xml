@@ -1,0 +1,50 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Welcome"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="50dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="FieldWorker"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:textSize="45dp"
+        android:paddingBottom="40dp" />
+
+    <EditText android:id="@+id/edit_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/edit_message"
+        android:layout_gravity="center_horizontal"
+        android:lines="1"
+        android:linksClickable="false" />
+
+    <Button
+    android:layout_width="171dp"
+    android:layout_height="wrap_content"
+    android:text="@string/button_send"
+    android:layout_gravity="center_horizontal"
+        android:onClick="sendMessage"
+        android:background="#ff00ffd3"
+        style="?android:attr/borderlessButtonStyle"
+        />
+
+    <!--<TextView android:text="@string/hello_world" android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+
+</LinearLayout>
