@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
 
                 // start GPS logging
 
-                csv_logger.isRunning = false;
+                Fieldworker.isRunning = false;
                 startService(serviceIntent);
 
 

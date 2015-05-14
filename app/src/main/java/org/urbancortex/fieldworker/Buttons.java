@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Vibrator;
@@ -42,7 +44,7 @@ public class Buttons extends Activity  {
     private String date;
     private String currentTime;
     String eventInfo;
-
+    private Menu menu;
     Vibrator v;
 
     private int mInterval = 1000; // 5 seconds by default, can be changed later
@@ -53,7 +55,14 @@ public class Buttons extends Activity  {
 
     DecimalFormat df = new DecimalFormat("#.#");
 
+    private static ImageView gps;
+    private static Drawable gpsNo;
+    private static Drawable gpsYes;
+    private static View view;
 
+    public static View getView() {
+        return view;
+    }
 
 
     @Override
@@ -88,7 +97,6 @@ public class Buttons extends Activity  {
         super.onStart();
 
         System.out.println("buttons on start");
-
         // Bind to LocalService
         Intent intent = new Intent(this, csv_logger.class);
         bindService(intent, mConnection, 0);
@@ -106,6 +114,9 @@ public class Buttons extends Activity  {
         textView.setTextSize(20);
         textView.setText(participantID);
 
+        gpsNo = getResources().getDrawable(R.drawable.ic_gps_no);
+        gpsYes =  getResources().getDrawable(R.drawable.ic_gps_yes);
+
         // load button names from file
         renameButtons();
         updateCounter(Fieldworker.eventsCounter);
@@ -114,6 +125,8 @@ public class Buttons extends Activity  {
         mHandler = new Handler();
         startTimer();
     }
+
+
 
     @Override
     protected void onStop() {
@@ -128,6 +141,8 @@ public class Buttons extends Activity  {
 
     @Override
     protected void onDestroy() {
+
+        System.out.println("Buttons onDestroy");
         super.onDestroy();
 
         // Unbind from the service
@@ -137,10 +152,16 @@ public class Buttons extends Activity  {
         }
     }
 
+    MenuItem shareItem;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_buttons, menu);
+
+        shareItem = menu.findItem(R.id.gps_fix);
+        updateGPS();
+
         return true;
     }
 
@@ -151,42 +172,46 @@ public class Buttons extends Activity  {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_camera) {
+        if (id == R.id.action_exit) {
+            System.out.println("pressed action bar ");
+
+            final Intent stopIntent = new Intent(Buttons.this, csv_logger.class);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit")
+                    .setMessage("Are you sure you want to stop recording?")
+                    .setIcon(0)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with exit
+
+                            Fieldworker.isRecording = false;
+                            stopService(stopIntent);
+                            stopTimer();
+                            // Unbind from the service
+                            if (mBound) {
+                                unbindService(mConnection);
+                                mBound = false;
+                            }
+//                            MainActivity.exit = true;
+                            finish();
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .show();
+
+        }   else if (id == R.id.action_camera){
+//        if (id == R.id.action_camera) {
             Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
             startActivity(intent);
         }
 
-        if (id == R.id.action_exit) {
-            System.out.println("pressed exit ");
-
-           // stopRecording();
-
-        }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    public void stopRecording () {
-        new AlertDialog.Builder(this)
-                .setTitle("Exit")
-                .setMessage("Are you sure you want to stop recording?")
-                .setIcon(0)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        // continue with exit
-                        stopService(new Intent(Buttons.this, csv_logger.class));
-//                        MainActivity.exit = true;
-                        //finish();
-
-                    }
-                })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                })
-                .show();
     }
 
     public void logEvent(View view) throws IOException, ParseException {
@@ -255,11 +280,16 @@ public class Buttons extends Activity  {
     private Runnable mTimer = new Runnable() {
         @Override
         public void run() {
-            now = elapsedRealtime();
-            updateTime(now);
-            mHandler.postDelayed(mTimer, mInterval);
+//            while(Fieldworker.isRecording){
+                now = elapsedRealtime();
+                updateTime(now);
+                updateGPS();
+                mHandler.postDelayed(mTimer, mInterval);
+//            }
         }
     };
+
+
 
     void startTimer() {
         mTimer.run();
@@ -272,32 +302,50 @@ public class Buttons extends Activity  {
         private void updateCounter(int count){
 
             TextView textView = (TextView) findViewById(R.id.textView7);
-            textView.setTextSize(20);
             textView.setText(String.valueOf(count));
         }
 
         void updateTime(long now){
 
             long millisElapsed;
-            String textTimeElasped;
+            String textTimeElapsed = "00:00:00";
             millisElapsed = now - Fieldworker.startTime;
-            double timeElapsed = millisElapsed / 1000;
-
-
-
-            if (timeElapsed < 60 ){
-                textTimeElasped = String.valueOf(timeElapsed) + " seconds";
-            } else if (timeElapsed < 3600){
-                timeElapsed = timeElapsed/60;
-                textTimeElasped = df.format(timeElapsed) + " minutes";
-            } else {
-                timeElapsed = timeElapsed/3600;
-                textTimeElasped = df.format(timeElapsed) + " hours";
-            }
+            double timeElapsed = millisElapsed/1000 ;
 
             TextView textView = (TextView) findViewById(R.id.textView9);
             textView.setTextSize(20);
-            textView.setText(textTimeElasped);
+            textView.setText(convertSecondsToHMmSs((long) timeElapsed));
         }
-}
 
+    public static String convertSecondsToHMmSs(long seconds) {
+        /* http://stackoverflow.com/a/9027362 */
+        long s = seconds % 60;
+        long m = (seconds / 60) % 60;
+        long h = (seconds / (60 * 60)) % 24;
+        return String.format("%02d:%02d:%02d", h,m,s);
+    }
+
+    public void updateGPS() {
+
+
+//        System.out.println(locations.accuracy + " " + gps);
+//        System.out.println(shareItem);
+
+        double accuracy = locations.accuracy;
+        TextView textView = (TextView) findViewById(R.id.textView11);
+        textView.setTextSize(12);
+        textView.setText(String.valueOf(accuracy));
+
+        if(true){
+            if(shareItem !=null){
+                if (accuracy > 0 && accuracy < 100) {
+                    shareItem.setIcon(gpsYes);
+                } else {
+                    shareItem.setIcon(gpsNo);
+
+                }
+            }
+        }
+
+    }
+}

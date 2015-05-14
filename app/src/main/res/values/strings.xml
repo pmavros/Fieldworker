@@ -7,11 +7,13 @@
     <string name="title_activity_buttons">Experiment</string>
     <string name="participantId">Participant: </string>
     <string name="Timestamp">Time Elapsed: </string>
-    <string name="events">Events Logged: </string>
+    <string name="events">Event Logs: </string>
     <string name="service_name">csv_logger</string>
     <string name="action_camera">Go to Camera</string>
     <string name="button_new">Start New Experiment</string>
     <string name="button_continue">Continue current Experiment</string>
+    <string name="gps_fix">gps signal quality</string>
+    <string name="accuracy">GPS accuracy:</string>
 
 </resources>
 

@@ -6,11 +6,17 @@
          android:title="@string/action_exit"
          android:orderInCategory="100"
          android:showAsAction="never"
-         android:enabled="false"/>
+         android:enabled="true"/>
 
     <item android:id="@+id/action_camera"
         android:icon="@mipmap/ic_camera"
         android:title="@string/action_camera"
         android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/gps_fix"
+        android:icon="@drawable/ic_gps_no"
+        android:title="@string/gps_fix"
+        android:showAsAction="ifRoom"
+        android:enabled="false"/>
 
 </menu>

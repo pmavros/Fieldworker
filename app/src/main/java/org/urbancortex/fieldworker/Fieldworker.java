@@ -12,5 +12,7 @@ public class Fieldworker extends Application {
     public static boolean isRecording = false;
     public static int eventsCounter = 0;
     public static long startTime = 0;
+    public static boolean isRunning = false;
+
 
 }

@@ -25,7 +25,7 @@ public class locations implements LocationListener {
     private static final long MIN_LOG_TIME = 1000 * 5;
 
 
-    private LocationManager lm;
+    private static LocationManager lm;
 
     public enum ProviderType{
         NETWORK,
@@ -36,10 +36,6 @@ public class locations implements LocationListener {
     private Location lastLocation;
     private long lastTime;
 
-    private boolean isRunning;
-
-    //private LocationUpdateListener listener;
-
     public locations(Context context, ProviderType type) {
         lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         if(type == ProviderType.NETWORK){
@@ -49,32 +45,31 @@ public class locations implements LocationListener {
             provider = LocationManager.GPS_PROVIDER;
         }
     }
+    private static boolean isGPSRunning = false;
 
     public void start(){
-        if(isRunning){
+
+        if(isGPSRunning){
             //Already running, do nothing
             return;
+        } else {
+
+            //The provider is on, so start getting updates.  Update current location
+            lm.requestLocationUpdates(provider, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
+            lastLocation = null;
+            lastTime = 0;
+            isGPSRunning = false;
+            return;
+
         }
 
-        //The provider is on, so start getting updates.  Update current location
-        isRunning = true;
-        lm.requestLocationUpdates(provider, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
-        lastLocation = null;
-        lastTime = 0;
-        return;
+
     }
 
-//    public void start(LocationUpdateListener update) {
-//        start();
-//        listener = update;
-//
-//    }
-
-
     public void stop(){
-        if(isRunning){
+        if(isGPSRunning){
             lm.removeUpdates(this);
-            isRunning = false;
+            isGPSRunning = false;
         }
     }
 
@@ -115,7 +110,6 @@ public class locations implements LocationListener {
     public void onLocationChanged(Location newLoc) {
         long now = System.currentTimeMillis();
         if(newLoc != null){
-            //newLoc.onUpdate(lastLocation, lastTime, newLoc, now);
 
             lat = newLoc.getLatitude();
             lon = newLoc.getLongitude();
@@ -127,6 +121,9 @@ public class locations implements LocationListener {
         }
         lastLocation = newLoc;
         lastTime = now;
+        if(newLoc.hasAccuracy()){
+//            Buttons.updateGPS(newLoc.getAccuracy());
+        }
     }
 
     public void onProviderDisabled(String arg0) {
