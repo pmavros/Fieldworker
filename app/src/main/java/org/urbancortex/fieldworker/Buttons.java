@@ -3,13 +3,11 @@ package org.urbancortex.fieldworker;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,7 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static android.os.SystemClock.elapsedRealtime;
-import static java.lang.System.*;
 
 
 public class Buttons extends Activity  {
@@ -38,8 +35,6 @@ public class Buttons extends Activity  {
     String [] colours = {"#33B5E5", "#AA66CC", "#99CC00","#FFBB33","#FF4444","#0099CC", "#9933CC","#669900", "#FF8800","#CC0000"};
 
     static long now;
-    static long startTime = elapsedRealtime();
-
 
 
     SimpleDateFormat formatterDate = new SimpleDateFormat("dd/MM/yyyy");
@@ -58,12 +53,13 @@ public class Buttons extends Activity  {
 
     DecimalFormat df = new DecimalFormat("#.#");
 
-    public static int counter = 0;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("buttons on create");
         setContentView(R.layout.activity_buttons);
 
         // Get the message from the intent
@@ -75,6 +71,7 @@ public class Buttons extends Activity  {
     ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceDisconnected(ComponentName name) {
+            mService = null;
             mBound = false;
         }
 
@@ -90,14 +87,14 @@ public class Buttons extends Activity  {
     protected void onStart() {
         super.onStart();
 
+        System.out.println("buttons on start");
+
         // Bind to LocalService
         Intent intent = new Intent(this, csv_logger.class);
         bindService(intent, mConnection, 0);
 
         setContentView(R.layout.activity_buttons);
         v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
-
-
 
         // Create the text view
         TextView textViewName = new TextView(this);
@@ -111,11 +108,10 @@ public class Buttons extends Activity  {
 
         // load button names from file
         renameButtons();
-        updateCounter(csv_logger.counter);
+        updateCounter(Fieldworker.eventsCounter);
 
         // start timer
         mHandler = new Handler();
-
         startTimer();
     }
 
@@ -131,22 +127,22 @@ public class Buttons extends Activity  {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_buttons, menu);
         return true;
     }
-
-//    @Override
-//    public void onStart(){
-//        super.onStart();
-//        // put your code here...
-//
-//    }
-
-
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -155,56 +151,55 @@ public class Buttons extends Activity  {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_exit) {
-            System.out.println("pressed action bar ");
-
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit")
-                    .setMessage("Are you sure you want to stop recording?")
-                    .setIcon(0)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // continue with exit
-
-                            stopService(new Intent(Buttons.this, csv_logger.class));
-                            MainActivity.exit = true;
-                            finish();
-
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })
-                    .show();
-
-
-
-
-
-        }   else if (id == R.id.action_camera){
+        if (id == R.id.action_camera) {
             Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
             startActivity(intent);
         }
 
+        if (id == R.id.action_exit) {
+            System.out.println("pressed exit ");
+
+           // stopRecording();
+
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void stopRecording () {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Are you sure you want to stop recording?")
+                .setIcon(0)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        // continue with exit
+                        stopService(new Intent(Buttons.this, csv_logger.class));
+//                        MainActivity.exit = true;
+                        //finish();
+
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .show();
+    }
 
     public void logEvent(View view) throws IOException, ParseException {
         Button b = (Button) view;
 
-        csv_logger.counter++;
-        updateCounter(csv_logger.counter);
+        Fieldworker.eventsCounter++;
+        updateCounter(Fieldworker.eventsCounter);
 
         String buttonPressed = b.getText().toString();
         time = System.currentTimeMillis();
         date = formatterDate.format(new Date(time));
         currentTime = formatterTime.format(new Date(time));
-        v.vibrate(100);
+        v.vibrate(20);
 
         Toast.makeText(this, buttonPressed + " pressed", Toast.LENGTH_SHORT).show();
 
@@ -219,11 +214,7 @@ public class Buttons extends Activity  {
                 locations.elevation + ", " +
                 locations.accuracy;
 
-        System.out.println(eventInfo);
         mService.writeStringToFile(eventInfo);
-
-
-
     }
 
     private void renameButtons (){
@@ -231,7 +222,7 @@ public class Buttons extends Activity  {
         String [] events = readWriteSettings.getButtonSettings();
 
         for (int i = 0; i < events.length; i++) {
-            out.println(events[i]);
+            //out.println(events[i]);
 
             String buttonID = "button" + i;
             int resID = getResources().getIdentifier(buttonID, "id", "org.urbancortex.fieldworker");
@@ -247,15 +238,15 @@ public class Buttons extends Activity  {
 
 
     protected String[] getEventNames(String s){
-            out.println(s);
+//            out.println(s);
             String[] events = s.split("\n");
             String[] eventNames = new String[events.length];
+
             for (int i = 0; i < events.length; i++) {
                 try {
                     eventNames[i] = events[i];
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    //TODO
                 }
             }
         return eventNames;
@@ -264,9 +255,7 @@ public class Buttons extends Activity  {
     private Runnable mTimer = new Runnable() {
         @Override
         public void run() {
-
             now = elapsedRealtime();
-
             updateTime(now);
             mHandler.postDelayed(mTimer, mInterval);
         }
@@ -291,7 +280,7 @@ public class Buttons extends Activity  {
 
             long millisElapsed;
             String textTimeElasped;
-            millisElapsed = now - startTime;
+            millisElapsed = now - Fieldworker.startTime;
             double timeElapsed = millisElapsed / 1000;
 
 

@@ -1,24 +1,26 @@
 package org.urbancortex.fieldworker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.File;
-import java.io.IOException;
+
+import static android.os.SystemClock.elapsedRealtime;
 
 
 public class MainActivity extends Activity {
 
     public final static String EXTRA_MESSAGE = "org.urbancortex.fieldworker.MESSAGE";
     private File fileWriteDirectory;
-    protected static boolean exit = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +29,10 @@ public class MainActivity extends Activity {
 
         new locations(this, locations.ProviderType.GPS).start();
 
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        if(exit){
-            finish();
+        if(Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.VISIBLE);
         }
-
-        super.onStart();
     }
 
     @Override
@@ -61,6 +56,14 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+    public void onResume(){
+        super.onResume();
+
+        if(Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.VISIBLE);
+        }
+    }
 
     /** Called when the user clicks the Send button */
     public void sendMessage(View view) {
@@ -79,9 +82,13 @@ public class MainActivity extends Activity {
                 System.out.println(participantID);
 
                 // start GPS logging
+
+                csv_logger.isRunning = false;
                 startService(serviceIntent);
 
+
                 intent.putExtra(EXTRA_MESSAGE, participantID);
+                // Start button activity
                 startActivity(intent);
 
             } else {
@@ -91,17 +98,105 @@ public class MainActivity extends Activity {
         } else {
             Toast.makeText(this, "I couldn't find a fieldworker folder in the system!", Toast.LENGTH_LONG).show();
         }
+    }
+    /** Called when the user clicks the Send button */
+    public void continueExperiment(View view) {
+
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String participantID = editText.getText().toString();
 
 
+        if(readWriteSettings.folderSettings()){
 
 
+            // prepare logger settings
+            final Intent serviceIntent = new Intent(this, csv_logger.class);
+            serviceIntent.putExtra("fileDir", readWriteSettings.fileWriteDirectory.toString());
+            serviceIntent.putExtra("participantID", participantID);
 
+            if(!participantID.isEmpty()){
+
+                // start second activity
+                Intent intent = new Intent(this, Buttons.class);
+                intent.putExtra(EXTRA_MESSAGE, participantID);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(this, "Hey, did you forget to enter your participant ID?", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "Oops, I couldn't find the folders I need in the system!", Toast.LENGTH_LONG).show();
+        }
     }
 
+    /** Called when the user clicks the Send button */
+    public void newExperiment(View view) {
+
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        final String participantID = editText.getText().toString();
 
 
+        if(readWriteSettings.folderSettings()){
 
+            // prepare logger settings
+            final Intent serviceIntent = new Intent(this, csv_logger.class);
+            serviceIntent.putExtra("fileDir", readWriteSettings.fileWriteDirectory.toString());
+            serviceIntent.putExtra("participantID", participantID);
+
+            if(!participantID.isEmpty()){
+                System.out.println(participantID);
+
+                // start GPS logging
+                if(Fieldworker.isRecording){
+                    // check if the want to start new recording
+                    final Intent intent = new Intent(this, Buttons.class);
+                    intent.putExtra(EXTRA_MESSAGE, participantID);
+
+                    new AlertDialog.Builder(this)
+                            .setTitle("New Recording")
+                            .setMessage("Are you sure you want to start a new recording session?")
+                            .setIcon(0)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    // if yes
+                                    startNewRecording(serviceIntent);
+
+                                    // start second activity
+                                    startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .show();
+
+
+                } else if (!Fieldworker.isRecording) {
+                    // carry on with existing recording
+                    startNewRecording(serviceIntent);
+
+                    // start second activity
+                    Intent intent = new Intent(this, Buttons.class);
+                    intent.putExtra(EXTRA_MESSAGE, participantID);
+                    startActivity(intent);
+
+                }
+
+            } else {
+                Toast.makeText(this, "Hey, did you forget to enter your participant ID?", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "Oops, I couldn't find the folders I need in the system!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void startNewRecording(Intent startIntent){
+        Fieldworker.isRecording = true;
+        Fieldworker.eventsCounter = 0;
+        Fieldworker.startTime = elapsedRealtime();
+        startService(startIntent);
+    }
 }
-
-
-

@@ -36,16 +36,25 @@
         android:linksClickable="false" />
 
     <Button
-    android:layout_width="171dp"
-    android:layout_height="wrap_content"
-    android:text="@string/button_send"
-    android:layout_gravity="center_horizontal"
-        android:onClick="sendMessage"
+        android:layout_width="171dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_new"
+        android:layout_gravity="center_horizontal"
+        android:onClick="newExperiment"
         android:background="#ff00ffd3"
         style="?android:attr/borderlessButtonStyle"
-        />
+        android:id="@+id/start" />
 
-    <!--<TextView android:text="@string/hello_world" android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
+    <Button
+        android:layout_width="171dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_continue"
+        android:layout_gravity="center_horizontal"
+        android:onClick="continueExperiment"
+        android:background="#ffe1ff18"
+        style="?android:attr/borderlessButtonStyle"
+        android:id="@+id/cont"
+        android:visibility="invisible"
+        android:layout_marginTop="10dp" />
 
 </LinearLayout>

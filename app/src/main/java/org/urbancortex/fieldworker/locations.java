@@ -75,7 +75,6 @@ public class locations implements LocationListener {
         if(isRunning){
             lm.removeUpdates(this);
             isRunning = false;
-            //listener = null;
         }
     }
 

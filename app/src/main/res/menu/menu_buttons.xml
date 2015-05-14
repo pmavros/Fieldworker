@@ -2,12 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.urbancortex.fieldworker.Buttons">
 
-    <item android:id="@+id/action_exit" android:title="@string/action_exit"
-        android:orderInCategory="100" android:showAsAction="never" />
+     <item android:id="@+id/action_exit"
+         android:title="@string/action_exit"
+         android:orderInCategory="100"
+         android:showAsAction="never"
+         android:enabled="false"/>
 
     <item android:id="@+id/action_camera"
         android:icon="@mipmap/ic_camera"
         android:title="@string/action_camera"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom"/>
 
 </menu>

@@ -7,7 +7,6 @@ import android.os.Binder;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.text.format.Time;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,8 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static android.os.SystemClock.elapsedRealtime;
 
 public class csv_logger extends Service {
 
@@ -29,9 +26,8 @@ public class csv_logger extends Service {
     SimpleDateFormat formatterDate = new SimpleDateFormat("dd/MM/yyyy");
     SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss.SSS");
     private String date;
-    private String currenttime;
     String eventInfo;
-    private int mInterval = 5000; // 5 seconds by default, can be changed later
+    private int mGPSInterval = 5000; // 5 seconds by default, can be changed later
     private Handler mHandler;
     public static int counter = 0;
 
@@ -69,30 +65,29 @@ public class csv_logger extends Service {
                 e.printStackTrace();
             }
         }
-
+        isRunning = true;
         startRepeatingTask();
 
-        isRunning = true;
 
         return START_NOT_STICKY;
     }
 
     @Override
     public boolean stopService(Intent name) {
+        System.out.println("stop service");
 
-        try {
-            stopRepeatingTask();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        stopRepeatingTask();
 
         isRunning = false;
-        stopSelf();
         return super.stopService(name);
     }
 
     @Override
     public void onDestroy() {
+
+
+        super.onDestroy();
+
 
         try {
             closeFile();
@@ -100,7 +95,6 @@ public class csv_logger extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        super.onDestroy();
     }
 
     // Binder given to clients
@@ -119,6 +113,7 @@ public class csv_logger extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        System.out.println("onBind");
         return mBinder;
     }
 
@@ -126,19 +121,23 @@ public class csv_logger extends Service {
 
 
     void startRepeatingTask() {
-        mLocationUpdate.run();
+        System.out.println(isRunning);
+       mLocationUpdate.run();
     }
 
-    void stopRepeatingTask() throws IOException {
-        closeFile();
+    void stopRepeatingTask() {
+        System.out.println("stoprepeating task");
+
         mHandler.removeCallbacks(mLocationUpdate);
     }
 
     private Runnable mLocationUpdate = new Runnable() {
         @Override
         public void run() {
-            updateLog(); //this function can change value of mInterval.
-            mHandler.postDelayed(mLocationUpdate, mInterval);
+            if(isRunning){
+                updateLog(); //this function can change value of mGPSInterval.
+            }
+            mHandler.postDelayed(mLocationUpdate, mGPSInterval);
         }
     };
 
@@ -148,7 +147,7 @@ public class csv_logger extends Service {
 
         time = System.currentTimeMillis();
         date = formatterDate.format(new Date(time));
-        currenttime = formatterTime.format(new Date(time));
+        String currenttime = formatterTime.format(new Date(time));
 
         eventInfo = "NA" + ", " +
                 time + ", " +
@@ -169,7 +168,7 @@ public class csv_logger extends Service {
     }
 
     public void writeStringToFile(final String eventInfo) throws IOException {
-
+        System.out.println(eventInfo);
         buf.append(eventInfo);
         buf.append("\n");
         buf.flush();
@@ -179,13 +178,12 @@ public class csv_logger extends Service {
     public static void closeFile () throws IOException {
         buf.flush();
         buf.close();
-
     }
 
     public static void createFile(String participantID) throws IOException {
         System.out.println(participantID);
         now.setToNow();
-        outputFileName =  participantID +"_" + now.format("%d.%m.%Y_%H.%M.%S")+"fieldworker.csv";
+        outputFileName =  participantID +"_" + now.format("%d.%m.%Y_%H.%M.%S") + "_" + "fieldworker.csv";
         System.out.println(outputFileName);
 
         System.out.println(fileWriteDirectory);
@@ -205,11 +203,4 @@ public class csv_logger extends Service {
         }
         return false;
     }
-
-
-
-
-
-
-
 }
