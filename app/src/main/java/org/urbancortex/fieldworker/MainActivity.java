@@ -27,11 +27,17 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        System.out.println("main.oncreate");
+
         new locations(this, locations.ProviderType.GPS).start();
 
         if(Fieldworker.isRecording){
             Button b = (Button)findViewById(R.id.cont);
             b.setVisibility(View.VISIBLE);
+        } else if (!Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -59,9 +65,29 @@ public class MainActivity extends Activity {
     public void onResume(){
         super.onResume();
 
+        System.out.println("main.onresume "+Fieldworker.isRecording);
+
+
         if(Fieldworker.isRecording){
             Button b = (Button)findViewById(R.id.cont);
             b.setVisibility(View.VISIBLE);
+        } else if (!Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void onStart(){
+        super.onStart();
+
+        System.out.println("main.onstart");
+
+        if(Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.VISIBLE);
+        } else if (!Fieldworker.isRecording){
+            Button b = (Button)findViewById(R.id.cont);
+            b.setVisibility(View.INVISIBLE);
         }
     }
 

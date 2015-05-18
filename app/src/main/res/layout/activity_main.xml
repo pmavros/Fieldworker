@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="1">
 
 
     <TextView
@@ -56,5 +57,31 @@
         android:id="@+id/cont"
         android:visibility="invisible"
         android:layout_marginTop="10dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:layout_weight="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Fieldworker v2.2"
+            android:layout_gravity="left|bottom|center_horizontal"
+            android:textSize="10dp"
+            android:gravity="bottom"
+            android:layout_marginBottom="0dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Author: Panos Mavros, UCL CASA"
+            android:layout_gravity="left|center_horizontal"
+            android:textSize="10dp" />
+    </LinearLayout>
 
 </LinearLayout>

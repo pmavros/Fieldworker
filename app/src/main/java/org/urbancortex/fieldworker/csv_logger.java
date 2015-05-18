@@ -74,7 +74,7 @@ public class csv_logger extends Service {
         System.out.println("stop service");
 
         stopTimerTask();
-
+        Fieldworker.isRecording = false;
         Fieldworker.isRunning = false;
         super.stopService(name);
 
@@ -158,7 +158,7 @@ public class csv_logger extends Service {
             date = formatterDate.format(new Date(time));
             String currenttime = formatterTime.format(new Date(time));
 
-            eventInfo = "NA" + ", " +
+            eventInfo = "GPS" + ", " +
                     time + ", " +
                     date + ", " +
                     currenttime + ", " +
