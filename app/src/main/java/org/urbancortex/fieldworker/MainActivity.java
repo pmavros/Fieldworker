@@ -222,7 +222,8 @@ public class MainActivity extends Activity {
     public void startNewRecording(Intent startIntent){
         Fieldworker.isRecording = true;
         Fieldworker.eventsCounter = 0;
-        Fieldworker.startTime = elapsedRealtime();
+        Fieldworker.startMillis = elapsedRealtime();
+        Fieldworker.startTime = System.currentTimeMillis();
         startService(startIntent);
     }
 }

@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.os.SystemClock.elapsedRealtime;
+
 public class csv_logger extends Service {
 
     static String participantID = null;
@@ -154,14 +156,16 @@ public class csv_logger extends Service {
     public void updateLog(){
         if(Fieldworker.isRunning) {
 
-            time = System.currentTimeMillis();
+            long millisElapsed = elapsedRealtime() - Fieldworker.startMillis;
+
+            time = Fieldworker.startTime + millisElapsed;
             date = formatterDate.format(new Date(time));
-            String currenttime = formatterTime.format(new Date(time));
+            String currentTime = formatterTime.format(new Date(time));
 
             eventInfo = "GPS" + ", " +
                     time + ", " +
                     date + ", " +
-                    currenttime + ", " +
+                    currentTime + ", " +
                     locations.lat + ", " +
                     locations.lon + ", " +
                     locations.speed + ", " +

@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Fieldworker v2.2"
+            android:text="Fieldworker v2.3"
             android:layout_gravity="left|bottom|center_horizontal"
             android:textSize="10dp"
             android:gravity="bottom"

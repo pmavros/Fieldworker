@@ -105,13 +105,13 @@ public class Buttons extends Activity  {
         v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
 
         // Create the text view
-        TextView textViewName = new TextView(this);
-        textViewName.setTextSize(20);
-        textViewName.setText("Participant:");
+//        TextView textViewName = new TextView(this);
+//        textViewName.setTextSize(20);
+//        textViewName.setText("Participant:");
 
         // Create the text view
-        TextView textView = (TextView) findViewById(R.id.textView4);
-        textView.setTextSize(20);
+        TextView textView = (TextView) findViewById(R.id.participantId);
+        textView.setTextSize(12);
         textView.setText(participantID);
 
         gpsNo = getResources().getDrawable(R.drawable.ic_gps_no);
@@ -221,7 +221,11 @@ public class Buttons extends Activity  {
         updateCounter(Fieldworker.eventsCounter);
 
         String buttonPressed = b.getText().toString();
-        time = System.currentTimeMillis();
+
+        long millisElapsed = now - Fieldworker.startMillis;
+
+        time = Fieldworker.startTime + millisElapsed;
+
         date = formatterDate.format(new Date(time));
         currentTime = formatterTime.format(new Date(time));
         v.vibrate(20);
@@ -247,7 +251,6 @@ public class Buttons extends Activity  {
         String [] events = readWriteSettings.getButtonSettings();
 
         for (int i = 0; i < events.length; i++) {
-            //out.println(events[i]);
 
             String buttonID = "button" + i;
             int resID = getResources().getIdentifier(buttonID, "id", "org.urbancortex.fieldworker");
@@ -260,32 +263,14 @@ public class Buttons extends Activity  {
         }
     }
 
-
-
-    protected String[] getEventNames(String s){
-//            out.println(s);
-            String[] events = s.split("\n");
-            String[] eventNames = new String[events.length];
-
-            for (int i = 0; i < events.length; i++) {
-                try {
-                    eventNames[i] = events[i];
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-            }
-        return eventNames;
-    }
-
     private Runnable mTimer = new Runnable() {
         @Override
         public void run() {
-//            while(Fieldworker.isRecording){
+
                 now = elapsedRealtime();
                 updateTime(now);
                 updateGPS();
                 mHandler.postDelayed(mTimer, mInterval);
-//            }
         }
     };
 
@@ -301,18 +286,16 @@ public class Buttons extends Activity  {
 
         private void updateCounter(int count){
 
-            TextView textView = (TextView) findViewById(R.id.textView7);
+            TextView textView = (TextView) findViewById(R.id.eventCounter);
             textView.setText(String.valueOf(count));
         }
 
         void updateTime(long now){
 
-            long millisElapsed;
-            String textTimeElapsed = "00:00:00";
-            millisElapsed = now - Fieldworker.startTime;
+            long millisElapsed = now - Fieldworker.startMillis;
             double timeElapsed = millisElapsed/1000 ;
 
-            TextView textView = (TextView) findViewById(R.id.textView9);
+            TextView textView = (TextView) findViewById(R.id.timer);
             textView.setTextSize(20);
             textView.setText(convertSecondsToHMmSs((long) timeElapsed));
         }
@@ -327,12 +310,8 @@ public class Buttons extends Activity  {
 
     public void updateGPS() {
 
-
-//        System.out.println(locations.accuracy + " " + gps);
-//        System.out.println(shareItem);
-
         double accuracy = locations.accuracy;
-        TextView textView = (TextView) findViewById(R.id.textView11);
+        TextView textView = (TextView) findViewById(R.id.gpsaccuracy);
         textView.setTextSize(12);
         textView.setText(String.valueOf(accuracy));
 
