@@ -125,6 +125,7 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "I couldn't find a fieldworker folder in the system!", Toast.LENGTH_LONG).show();
         }
     }
+
     /** Called when the user clicks the Send button */
     public void continueExperiment(View view) {
 

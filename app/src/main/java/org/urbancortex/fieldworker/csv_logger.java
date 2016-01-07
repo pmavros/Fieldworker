@@ -1,6 +1,5 @@
 package org.urbancortex.fieldworker;
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -8,18 +7,14 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.text.format.Time;
-import android.view.View;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import static android.os.SystemClock.elapsedRealtime;
 
 public class csv_logger extends Service {

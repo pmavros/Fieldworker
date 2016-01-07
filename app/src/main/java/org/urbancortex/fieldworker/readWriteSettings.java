@@ -30,17 +30,17 @@ public class readWriteSettings {
             if (fileDirectory.exists()) {
                 // do something here
                 out.println("folder fieldworker exists in sd storage");
-
-                // check if data folder exists
-                if (!fileWriteDirectory.isDirectory()) {
-                    // do something here
-                    fileWriteDirectory.mkdirs();
-                }
-
             } else {
-                System.out.println("no fieldworker folder");
-//                Toast.makeText(this, "", Toast.LENGTH_LONG).show();
+                fileDirectory.mkdirs();
+                System.out.println("Had to make fieldworker folder");
             }
+
+            // check if data folder exists
+            if (!fileWriteDirectory.isDirectory()) {
+                // do something here
+                fileWriteDirectory.mkdirs();
+            }
+
             return true;
 
         } else {

@@ -1,0 +1,7 @@
+Start
+Stop
+Junction
+Turn
+Pause 
+Looking Around
+Obstacle

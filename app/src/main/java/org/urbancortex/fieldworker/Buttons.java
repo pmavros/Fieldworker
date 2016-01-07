@@ -36,8 +36,7 @@ public class Buttons extends Activity  {
     static long time = System.currentTimeMillis();
     String [] colours = {"#33B5E5", "#AA66CC", "#99CC00","#FFBB33","#FF4444","#0099CC", "#9933CC","#669900", "#FF8800","#CC0000"};
 
-    static long now;
-
+    long now;
 
     SimpleDateFormat formatterDate = new SimpleDateFormat("dd/MM/yyyy");
     SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -47,6 +46,7 @@ public class Buttons extends Activity  {
     private Menu menu;
     Vibrator v;
 
+    // this is the time elapsed display for the ui thread
     private int mInterval = 1000; // 5 seconds by default, can be changed later
     private Handler mHandler;
 
@@ -55,7 +55,6 @@ public class Buttons extends Activity  {
 
     DecimalFormat df = new DecimalFormat("#.#");
 
-    private static ImageView gps;
     private static Drawable gpsNo;
     private static Drawable gpsYes;
     private static View view;
@@ -103,11 +102,6 @@ public class Buttons extends Activity  {
 
         setContentView(R.layout.activity_buttons);
         v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
-
-        // Create the text view
-//        TextView textViewName = new TextView(this);
-//        textViewName.setTextSize(20);
-//        textViewName.setText("Participant:");
 
         // Create the text view
         TextView textView = (TextView) findViewById(R.id.participantId);
@@ -233,8 +227,8 @@ public class Buttons extends Activity  {
         Toast.makeText(this, buttonPressed + " pressed", Toast.LENGTH_SHORT).show();
 
         eventInfo = buttonPressed.toString() + ", " +
-                time + ", " +
                 date + ", " +
+                time + ", " +
                 currentTime + ", " +
                 locations.lat + ", " +
                 locations.lon + ", " +
@@ -267,7 +261,7 @@ public class Buttons extends Activity  {
         @Override
         public void run() {
 
-                now = elapsedRealtime();
+            long now = elapsedRealtime();
                 updateTime(now);
                 updateGPS();
                 mHandler.postDelayed(mTimer, mInterval);
