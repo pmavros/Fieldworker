@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Vibrator;
@@ -26,6 +25,8 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import android.os.Bundle;
+import org.urbancortex.fieldworker.*;
 
 import static android.os.SystemClock.elapsedRealtime;
 
@@ -63,6 +64,7 @@ public class Buttons extends Activity  {
         return view;
     }
 
+//    private static liblslAndroidArm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -320,5 +322,9 @@ public class Buttons extends Activity  {
             }
         }
 
+    }
+
+    static {
+        System.loadLibrary("liblslAndroidArm");
     }
 }
