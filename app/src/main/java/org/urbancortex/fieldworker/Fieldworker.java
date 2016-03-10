@@ -14,6 +14,8 @@ public class Fieldworker extends Application {
     public static long startMillis = 0;
     public static long startTime = System.currentTimeMillis();
     public static boolean isRunning = false;
+    public static boolean Reminder = false;
+    public static boolean streamToLSL = false;
 
 
 }

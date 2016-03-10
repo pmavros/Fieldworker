@@ -64,7 +64,15 @@ public class Buttons extends Activity  {
         return view;
     }
 
-//    private static liblslAndroidArm;
+
+
+
+/*
+    create a new streaminfo to describe your stream and create a new outlet with that info.
+    Push samples into the outlet as your app produces them. Destroy the outlet when you're done.
+
+  */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,8 @@ public class Buttons extends Activity  {
         // Get the message from the intent
         Intent intent = getIntent();
         participantID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+     //   System.out.println("The LSL clock reads: " + Double.toString(lsl.local_clock()) );
     }
 
 
@@ -259,6 +269,15 @@ public class Buttons extends Activity  {
         }
     }
 
+    private Runnable mReminder = new Runnable() {
+        @Override
+        public void run() {
+
+            v.vibrate(200);
+            mHandler.postDelayed(mReminder, 20000);
+        }
+    };
+
     private Runnable mTimer = new Runnable() {
         @Override
         public void run() {
@@ -274,19 +293,27 @@ public class Buttons extends Activity  {
 
     void startTimer() {
         mTimer.run();
+        if(Fieldworker.Reminder){
+            mReminder.run();
+        }
     }
 
     void stopTimer() {
         mHandler.removeCallbacks(mTimer);
+
+        if(Fieldworker.Reminder){
+            mHandler.removeCallbacks(mReminder);
+        }
+
     }
 
-        private void updateCounter(int count){
+    private void updateCounter(int count){
 
             TextView textView = (TextView) findViewById(R.id.eventCounter);
             textView.setText(String.valueOf(count));
-        }
+    }
 
-        void updateTime(long now){
+    void updateTime(long now){
 
             long millisElapsed = now - Fieldworker.startMillis;
             double timeElapsed = millisElapsed/1000 ;
@@ -294,7 +321,7 @@ public class Buttons extends Activity  {
             TextView textView = (TextView) findViewById(R.id.timer);
             textView.setTextSize(20);
             textView.setText(convertSecondsToHMmSs((long) timeElapsed));
-        }
+    }
 
     public static String convertSecondsToHMmSs(long seconds) {
         /* http://stackoverflow.com/a/9027362 */
@@ -324,7 +351,5 @@ public class Buttons extends Activity  {
 
     }
 
-    static {
-        System.loadLibrary("liblslAndroidArm");
-    }
+
 }

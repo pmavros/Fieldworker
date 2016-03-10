@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.io.File;
@@ -97,6 +98,12 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, Buttons.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String participantID = editText.getText().toString();
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
+        if (checkBox.isChecked()) {
+            Fieldworker.Reminder = true;
+        } else {
+            Fieldworker.Reminder = false;
+        }
 
 
         if(readWriteSettings.folderSettings()){
@@ -131,6 +138,12 @@ public class MainActivity extends Activity {
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String participantID = editText.getText().toString();
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
+        if (checkBox.isChecked()) {
+            Fieldworker.Reminder = true;
+        } else {
+            Fieldworker.Reminder = false;
+        }
 
 
         if(readWriteSettings.folderSettings()){
@@ -225,6 +238,16 @@ public class MainActivity extends Activity {
         Fieldworker.eventsCounter = 0;
         Fieldworker.startMillis = elapsedRealtime();
         Fieldworker.startTime = System.currentTimeMillis();
+
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
+        if (checkBox.isChecked()) {
+            Fieldworker.Reminder = true;
+        } else {
+            Fieldworker.Reminder = false;
+        }
+
+
+
         startService(startIntent);
     }
 }
