@@ -59,13 +59,6 @@
         android:layout_marginTop="10dp" />
 
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="20 sec. Reminder"
-        android:id="@+id/checkBox"
-        android:layout_gravity="center_horizontal" />
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
@@ -73,11 +66,24 @@
         android:gravity="bottom"
         android:layout_weight="1">
 
+        <CheckBox
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="20 sec. Reminder"
+            android:id="@+id/checkBox_1" />
+
+        <CheckBox
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Stream data to LSL"
+            android:id="@+id/checkBox_2"
+            android:layout_marginBottom="20dp" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Fieldworker v2.3"
+            android:text="Fieldworker"
             android:layout_gravity="left|bottom|center_horizontal"
             android:textSize="10dp"
             android:gravity="bottom"

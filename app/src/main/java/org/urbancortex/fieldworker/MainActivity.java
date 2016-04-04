@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import java.io.File;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -98,12 +99,8 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, Buttons.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String participantID = editText.getText().toString();
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
-        if (checkBox.isChecked()) {
-            Fieldworker.Reminder = true;
-        } else {
-            Fieldworker.Reminder = false;
-        }
+
+        checkSettings();
 
 
         if(readWriteSettings.folderSettings()){
@@ -138,12 +135,8 @@ public class MainActivity extends Activity {
 
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String participantID = editText.getText().toString();
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
-        if (checkBox.isChecked()) {
-            Fieldworker.Reminder = true;
-        } else {
-            Fieldworker.Reminder = false;
-        }
+
+        checkSettings();
 
 
         if(readWriteSettings.folderSettings()){
@@ -175,6 +168,7 @@ public class MainActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.edit_message);
         final String participantID = editText.getText().toString();
 
+        checkSettings();
 
         if(readWriteSettings.folderSettings()){
 
@@ -239,15 +233,29 @@ public class MainActivity extends Activity {
         Fieldworker.startMillis = elapsedRealtime();
         Fieldworker.startTime = System.currentTimeMillis();
 
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
-        if (checkBox.isChecked()) {
+
+        checkSettings();
+
+
+
+
+        startService(startIntent);
+    }
+
+    private void checkSettings(){
+        final CheckBox checkBoxRem = (CheckBox) findViewById(R.id.checkBox_1);
+        final CheckBox checkBoxLSL = (CheckBox) findViewById(R.id.checkBox_2);
+
+        if (checkBoxRem.isChecked()) {
             Fieldworker.Reminder = true;
         } else {
             Fieldworker.Reminder = false;
         }
 
-
-
-        startService(startIntent);
+        if (checkBoxLSL.isChecked()) {
+            Fieldworker.streamToLSL = true;
+        } else {
+            Fieldworker.streamToLSL = false;
+        }
     }
 }

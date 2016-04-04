@@ -12,26 +12,43 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Vibrator;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import android.os.Bundle;
-import org.urbancortex.fieldworker.*;
+
+
+import org.hellojni.channel_format_t;
+import org.hellojni.stream_info;
+import org.hellojni.stream_outlet;
+import org.hellojni.vectorf;
+import org.hellojni.vectori;
 
 import static android.os.SystemClock.elapsedRealtime;
 
 
 public class Buttons extends Activity  {
+
+
+
+    public Buttons()
+    {
+    }
+
+
 
     static String participantID = null;
     static long time = System.currentTimeMillis();
@@ -49,7 +66,7 @@ public class Buttons extends Activity  {
 
     // this is the time elapsed display for the ui thread
     private int mInterval = 1000; // 5 seconds by default, can be changed later
-    private Handler mHandler;
+    private Handler mHandler = null;
 
     csv_logger mService;
     boolean mBound = false;
@@ -85,7 +102,10 @@ public class Buttons extends Activity  {
         participantID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
      //   System.out.println("The LSL clock reads: " + Double.toString(lsl.local_clock()) );
+
+
     }
+
 
 
     ServiceConnection mConnection = new ServiceConnection() {
@@ -143,6 +163,10 @@ public class Buttons extends Activity  {
             unbindService(mConnection);
             mBound = false;
         }
+
+        stopTimer();
+//        mHandler.getLooper().quit();
+
     }
 
     @Override
@@ -156,6 +180,8 @@ public class Buttons extends Activity  {
             unbindService(mConnection);
             mBound = false;
         }
+        stopTimer();
+//        mHandler.getLooper().quit();
     }
 
     MenuItem shareItem;
@@ -250,6 +276,7 @@ public class Buttons extends Activity  {
                 locations.accuracy;
 
         mService.writeStringToFile(eventInfo);
+
     }
 
     private void renameButtons (){
@@ -350,6 +377,8 @@ public class Buttons extends Activity  {
         }
 
     }
+
+    
 
 
 }
