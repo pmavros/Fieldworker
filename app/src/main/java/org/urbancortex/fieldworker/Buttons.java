@@ -42,12 +42,22 @@ import static android.os.SystemClock.elapsedRealtime;
 
 public class Buttons extends Activity  {
 
-
+//    static
+//    {
+//        System.loadLibrary("lslAndroid");
+//    }
 
     public Buttons()
     {
     }
 
+
+    private Handler mHandler = null;
+//    private DataLslSender m_dataLslSender;
+    private PowerManager.WakeLock m_wakeLock;
+
+    private EditText m_ipAddressEditTF, m_portEditTF, m_initChunkTF;
+    private TextView m_sendLocationsLabel;
 
 
     static String participantID = null;
@@ -66,7 +76,7 @@ public class Buttons extends Activity  {
 
     // this is the time elapsed display for the ui thread
     private int mInterval = 1000; // 5 seconds by default, can be changed later
-    private Handler mHandler = null;
+//    private Handler mHandler = null;
 
     csv_logger mService;
     boolean mBound = false;
@@ -100,10 +110,23 @@ public class Buttons extends Activity  {
         // Get the message from the intent
         Intent intent = getIntent();
         participantID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+//        m_dataLslSender = new DataLslSender();
+//        new Thread(m_dataLslSender).start();
+//     //   System.out.println("The LSL clock reads: " + Double.toString(lsl.local_clock()) );
 
-     //   System.out.println("The LSL clock reads: " + Double.toString(lsl.local_clock()) );
 
+    }
 
+    private void closeSendersAndProcessors()
+    {
+
+//        if (m_dataLslSender != null)
+//        {
+//            m_dataLslSender.setSenderRunning(false);
+//        }
+
+        //m_dataProcessor.setRunning(false);
+//        m_sendLocationsLabel.setText("");
     }
 
 
@@ -165,6 +188,8 @@ public class Buttons extends Activity  {
         }
 
         stopTimer();
+        closeSendersAndProcessors();
+
 //        mHandler.getLooper().quit();
 
     }
@@ -181,6 +206,8 @@ public class Buttons extends Activity  {
             mBound = false;
         }
         stopTimer();
+        closeSendersAndProcessors();
+
 //        mHandler.getLooper().quit();
     }
 
@@ -378,7 +405,60 @@ public class Buttons extends Activity  {
 
     }
 
-    
+//    class DataLslSender implements Runnable
+//    {
+//        private int m_dataChunkCounter = 0;
+//        private int m_chunkSize = 64;
+//        private vectorf m_floatVector;
+//        private vectori m_intVector;
+//        private volatile boolean m_senderRunning = true;
+//        private stream_outlet m_outlet, m_markerOutlet;
+//
+//        public DataLslSender()
+//        {
+//           // m_floatVector = new vectorf();
+//            System.out.println("Creating a new StreamInfo...");
+////      LSL.StreamInfo info = new LSL.StreamInfo("MyMarkers","Markers",1,LSL.IRREGULAR_RATE,LSL.ChannelFormat.string,"myuid4563");
+//
+//
+////      stream_info dataInfo = new stream_info("MuseEEG", "EEG", 4, 220, channel_format_t.cf_float32, "myuid324457");
+//            stream_info markerInfo = new stream_info("MyMarkers", "Markers", 4, 10, channel_format_t.cf_int32, "android");
+////      m_outlet = new stream_outlet(dataInfo);
+//            m_markerOutlet = new stream_outlet(markerInfo);
+//            m_chunkSize = Integer.parseInt(m_initChunkTF.getText().toString());
+//        }
+//
+//        public void setChunkSize(int chunkSize)
+//        {
+//            m_chunkSize = chunkSize;
+//        }
+//
+//        @Override
+//        public void run()
+//        {
+//            while (m_senderRunning)
+//            {
+//
+//                Log.i("sender", "running");
+//
+////        m_outlet.push_chunk_multiplexed(m_floatVector);
+//                m_markerOutlet.push_sample("this");
+//                try {
+//                    Thread.sleep(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//            }
+//        }
+//
+//
+//        public synchronized void setSenderRunning(boolean senderRunning)
+//        {
+//            m_senderRunning = senderRunning;
+//        }
+//    }
 
 
 }
